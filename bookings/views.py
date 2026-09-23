@@ -15,7 +15,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
         return Booking.objects.filter(customer=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(customer=self.request.user)
+        serializer.save()
 
 
 class BookingDetailView(generics.RetrieveAPIView):

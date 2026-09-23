@@ -1,4 +1,5 @@
 import uuid
+
 from django.conf import settings
 from django.db import models
 
@@ -8,8 +9,10 @@ class Booking(models.Model):
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
         ("CONFIRMED", "Confirmed"),
-        ("CANCELLED", "Cancelled"),
+        ("IN_PROGRESS", "In Progress"),
         ("COMPLETED", "Completed"),
+        ("CANCELLED", "Cancelled"),
+        ("PAYMENT_FAILED", "Payment Failed"),
     ]
 
     uuid = models.UUIDField(
@@ -45,13 +48,18 @@ class Booking(models.Model):
     )
 
     status = models.CharField(
-        max_length=20,
+        max_length=30,
         choices=STATUS_CHOICES,
         default="PENDING"
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
 
     def __str__(self):
         return f"Booking {self.uuid}"

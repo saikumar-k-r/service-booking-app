@@ -1,30 +1,56 @@
+import uuid
+
 from django.db import models
+from bookings.models import Booking
 
 
 class Payment(models.Model):
-    class Status(models.TextChoices):
+
+    class PaymentStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"
         SUCCESS = "SUCCESS", "Success"
         FAILED = "FAILED", "Failed"
         REFUNDED = "REFUNDED", "Refunded"
 
+    class PaymentMethod(models.TextChoices):
+        MOCK = "MOCK", "Mock Payment"
+        CARD = "CARD", "Card"
+        UPI = "UPI", "UPI"
+
+    id = models.BigAutoField(primary_key=True)
+
     booking = models.OneToOneField(
-        "bookings.Booking",
-        on_delete=models.PROTECT,
-        related_name="payment",
+        Booking,
+        on_delete=models.CASCADE,
+        related_name="payment"
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_reference = models.CharField(
-        max_length=150,
+
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    transaction_id = models.UUIDField(
+        default=uuid.uuid4,
         unique=True,
+        editable=False
     )
-    status = models.CharField(
+
+    payment_status = models.CharField(
         max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.PENDING
     )
-    paid_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.MOCK
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
     def __str__(self):
-        return f"Payment #{self.id}"
+        return f"Payment {self.transaction_id} - {self.payment_status}"

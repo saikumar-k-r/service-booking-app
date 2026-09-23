@@ -1,7 +1,20 @@
 from django.urls import path
-from .views import PaymentListCreateView, PaymentDetailView
+from .views import PaymentInitiateView, MockPaymentProcessView,PaymentWebhookView
 
 urlpatterns = [
-    path("", PaymentListCreateView.as_view(), name="payment-list-create"),
-    path("<int:pk>/", PaymentDetailView.as_view(), name="payment-detail"),
+    path(
+        "initiate/",
+        PaymentInitiateView.as_view(),
+        name="payment-initiate"
+    ),
+    path(
+        "process/<int:pk>/",
+        MockPaymentProcessView.as_view(),
+        name="payment-process"
+    ),
+    path(
+    "webhook/",
+    PaymentWebhookView.as_view(),
+    name="payment-webhook"
+),
 ]

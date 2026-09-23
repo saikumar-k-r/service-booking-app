@@ -117,3 +117,21 @@ class BookingSerializer(serializers.ModelSerializer):
                 if key != "service"
             }
         )
+    def validate_status(self, value):
+      current_status = self.instance.status if self.instance else None
+
+      allowed_transitions = {
+        "PENDING": ["CONFIRMED", "CANCELLED", "PAYMENT_FAILED"],
+        "CONFIRMED": ["IN_PROGRESS", "CANCELLED"],
+        "IN_PROGRESS": ["COMPLETED"],
+        "COMPLETED": [],
+        "CANCELLED": [],
+        "PAYMENT_FAILED": [],
+    }
+
+      if current_status and value not in allowed_transitions[current_status]:
+        raise serializers.ValidationError(
+            f"Invalid status transition: {current_status} -> {value}"
+        )
+
+      return value
