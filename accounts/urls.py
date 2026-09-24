@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import ProfileImageUploadView
 
 from .views import (
     RegisterView,
@@ -18,4 +19,9 @@ urlpatterns = [
 
     # Service Providers
     path("providers/", ProviderListView.as_view(), name="providers"),
+    path(
+    "profile/image/",
+    ProfileImageUploadView.as_view(),
+    name="profile-image"
+),
 ]

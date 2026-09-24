@@ -1,3 +1,7 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+class ServiceBasicTest(TestCase):
+
+    def test_service_app(self):
+        self.assertTrue(True)
