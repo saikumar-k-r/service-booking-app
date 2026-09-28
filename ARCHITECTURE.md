@@ -305,3 +305,191 @@ Duplicate and unused code should be removed after verification.
                  |
                  v
         Background Processing
+## 3. Django Application Review
+
+The Django project was reviewed application by application.
+
+### Accounts
+Purpose:
+Authentication, user profiles, permissions and user management.
+
+Main components:
+- Models
+- Serializers
+- Views
+- URLs
+- Permissions
+- Tests
+
+### Services
+Purpose:
+Service/provider management and service-related APIs.
+
+### Bookings
+Purpose:
+Booking creation, booking lifecycle and booking history.
+
+### Payments
+Purpose:
+Payment records and payment status management.
+
+### Notifications
+Purpose:
+User notifications and background notification processing.
+
+### Chat
+Purpose:
+Real-time communication using Django Channels/WebSockets.
+
+Application responsibilities were reviewed and duplicate functionality was avoided.
+
+---
+
+## 4. Business Logic Review
+
+Business logic was reviewed across:
+
+- Views
+- Serializers
+- Models
+- WebSocket Consumers
+
+Complex business operations are handled through service-layer modules where applicable.
+
+Examples:
+- Booking operations
+- Fare/business calculations
+- Provider operations
+- Location operations
+- Payment processing
+
+The review ensures that views remain lightweight and business logic is separated from API presentation logic.
+
+---
+
+## 5. Database Design Review
+
+The database design was reviewed for:
+
+- Foreign key relationships
+- Model relationships
+- Constraints
+- Indexes
+- Nullable fields
+- UUID usage
+- Duplicate data
+
+PostgreSQL is used as the primary database.
+
+The existing relationships between users, services, bookings, payments and notifications were reviewed.
+
+Database migrations were successfully applied and verified.
+
+---
+
+## 6. API Structure Review
+
+The API architecture was reviewed for versioning and consistency.
+
+Target structure:
+
+/api/v1/
+
+The following were reviewed:
+
+- HTTP methods
+- Request validation
+- Response structure
+- HTTP status codes
+- Error handling
+- Authentication
+- Permissions
+
+APIs follow REST principles and use Django REST Framework.
+
+---
+
+## 7. Technical Debt Review
+
+The project was reviewed for common technical-debt areas:
+
+- Duplicate code
+- Unused imports
+- Unused functions
+- Hardcoded configuration
+- Large functions
+- Poor naming
+- Repeated database queries
+
+Configuration values such as database and Redis settings are managed through environment variables.
+
+The `.gitignore` file excludes:
+
+- venv/
+- .venv/
+- __pycache__/
+- *.pyc
+- .env
+- media/
+- staticfiles/
+- .vscode/
+- .idea/
+
+The review reduced unnecessary project files and improved maintainability.
+
+---
+
+## Final Architecture Review Status
+
+| Task | Status |
+|------|--------|
+| Task 1 – Clone & Run | ✅ Completed |
+| Task 2 – Architecture Understanding | ✅ Completed |
+| Task 3 – Django Application Review | ✅ Completed |
+| Task 4 – Business Logic Review | ✅ Completed |
+| Task 5 – Database Design Review | ✅ Completed |
+| Task 6 – API Structure Review | ✅ Completed |
+| Task 7 – Technical Debt Review | ✅ Completed |
+| Task 8 – Architecture Documentation | ✅ Completed |
+
+### Acceptance Criteria
+
+- Project runs successfully from the configured environment.
+- Architecture reviewed and documented.
+- Application responsibilities documented.
+- Service layer reviewed.
+- Database design reviewed.
+- API structure reviewed.
+- Technical debt areas reviewed.
+- ARCHITECTURE.md completed.
+## Task 3 — Django Applications Review
+
+### Accounts
+Purpose: User authentication, profiles and account management.
+Components: Models, Serializers, Views, URLs, Permissions, Tests.
+
+### Bookings
+Purpose: Booking creation, booking lifecycle and booking history.
+Components: Models, Serializers, Views, URLs, Services, Tests.
+
+### Chat
+Purpose: Real-time communication using Django Channels/WebSockets.
+Components: Consumers, Routing, WebSocket configuration.
+
+### Notifications
+Purpose: User notification management and notification processing.
+Components: Models, Views, Serializers, Tasks.
+
+### Payments
+Purpose: Payment records and payment status management.
+Components: Models, Serializers, Views, Services, URLs.
+
+### Services
+Purpose: Service and provider management.
+Components: Models, Serializers, Views, URLs, Services.
+
+### Config
+Purpose: Core Django project configuration.
+Components: Settings, URLs, ASGI, WSGI.
+
+Application responsibilities were reviewed and no unnecessary application was identified for removal.
