@@ -1,18 +1,40 @@
 # Mobile API Integration
 
-## Architecture
+# System Architecture
+
+```text
+                 Mobile Application
+                        │
+                      HTTPS
+                        │
+                        ▼
+                Django REST API
+                        │
+                 JWT Authentication
+                        │
+                        ▼
+                 Service Layer
+                        │
+          ┌─────────────┼─────────────┐
+          │             │             │
+          ▼             ▼             ▼
+      PostgreSQL      Redis         Celery
+          │             │             │
+          │          Cache/Queue   Background
+          │                         Tasks
+          │
+          ▼
+      Application Data
+
 
 Mobile Application
-        ↓
-     HTTPS
-        ↓
-   REST API
-        ↓
-      JWT
-        ↓
-     Django
-        ↓
-   PostgreSQL
+        │
+        │ WebSocket
+        ▼
+ Django Channels
+        │
+        ▼
+ Real-Time Booking Status
 
 ## Authentication Flow
 

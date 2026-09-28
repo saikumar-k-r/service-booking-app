@@ -3,7 +3,8 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
 
 from .models import Service, ServiceImage
@@ -52,6 +53,7 @@ class StandardResponseMixin:
         )
 
 
+@method_decorator(cache_page(60 * 5), name="get")
 class ServiceListCreateView(
     StandardResponseMixin,
     generics.ListCreateAPIView

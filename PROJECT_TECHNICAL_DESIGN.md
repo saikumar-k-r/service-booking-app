@@ -352,31 +352,98 @@ A mobile user should be able to register, create a profile, search available ser
 - created_at
 
 ## ER Diagram
+# Booking State Diagram
 
 ```text
-                         USER
-                          |
-             +------------+------------+
-             |                         |
-          PROFILE              SERVICE PROVIDER
-                                      |
-                                      |
-                                   SERVICE
-                                      |
-                                      |
-                                  BOOKING
-                                /    |     \
-                               /     |      \
-                         CUSTOMER  SERVICE  PROVIDER
-                               |
-                            PAYMENT
+                ┌───────────┐
+                │ REQUESTED │
+                └─────┬─────┘
+                      │
+              Provider accepts
+                      ↓
+                ┌──────────┐
+                │ ACCEPTED │
+                └────┬─────┘
+                     │
+                     │ Provider starts
+                     ↓
+              ┌──────────────┐
+              │ IN_PROGRESS  │
+              └──────┬───────┘
+                     │
+                     │ Provider completes
+                     ↓
+               ┌───────────┐
+               │ COMPLETED │
+               └───────────┘
 
-BOOKING
-   |
-   +---- NOTIFICATION
+REQUESTED ──────→ REJECTED
+REQUESTED ──────→ CANCELLED
+ACCEPTED ───────→ CANCELLED
+---
 
-BOOKING
-   |
-   +---- CHAT CONVERSATION
-              |
-              +---- CHAT MESSAGE
+## 2. Add proper API Specification
+
+Add:
+
+```markdown
+# API Specification
+
+## Authentication
+
+POST /api/v1/auth/register/
+POST /api/v1/auth/login/
+POST /api/v1/auth/refresh/
+POST /api/v1/auth/logout/
+
+## Profile
+
+GET /api/v1/profile/
+PUT /api/v1/profile/
+POST /api/v1/profile/image/
+
+## Services
+
+GET /api/v1/services/
+POST /api/v1/services/
+GET /api/v1/services/{id}/
+PUT /api/v1/services/{id}/
+DELETE /api/v1/services/{id}/
+
+## Service Images
+
+POST /api/v1/services/{id}/images/
+GET /api/v1/services/{id}/images/
+DELETE /api/v1/services/{id}/images/{image_id}/
+
+## Booking
+
+POST /api/v1/bookings/
+GET /api/v1/bookings/
+GET /api/v1/bookings/{id}/
+PATCH /api/v1/bookings/{id}/status/
+
+## Payment
+
+POST /api/v1/payments/
+GET /api/v1/payments/{id}/
+POST /api/v1/payments/{id}/verify/
+
+## Notifications
+
+GET /api/v1/notifications/
+PATCH /api/v1/notifications/{id}/read/
+
+## Chat
+
+GET /api/v1/chat/
+POST /api/v1/chat/messages/
+
+## Admin
+
+GET /api/v1/admin/users/
+GET /api/v1/admin/providers/
+GET /api/v1/admin/services/
+GET /api/v1/admin/bookings/
+GET /api/v1/admin/payments/
+GET /api/v1/admin/notifications/
