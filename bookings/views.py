@@ -6,6 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Booking
 from .serializers import BookingSerializer
 from django.db.models import Q
+from .workflow import validate_transition
+from rest_framework.exceptions import ValidationError
+from .workflow import transition_booking
 
 
 class BookingListCreateView(generics.ListCreateAPIView):
@@ -81,20 +84,6 @@ class BookingStatusUpdateView(APIView):
 
         new_status = request.data.get("status")
 
-        allowed_statuses = [
-            "PENDING",
-            "ACCEPTED",
-            "STARTED",
-            "COMPLETED",
-            "CANCELLED",
-        ]
-
-        if new_status not in allowed_statuses:
-            return Response(
-                {"detail": "Invalid status."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         # Only customer or provider can update
         if (
             booking.customer_id != request.user.id
@@ -105,8 +94,16 @@ class BookingStatusUpdateView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        booking.status = new_status
-        booking.save(update_fields=["status", "updated_at"])
+        try:
+            booking = transition_booking(
+                booking.id,
+                new_status
+            )
+        except ValidationError as exc:
+            return Response(
+                exc.detail,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(
             {

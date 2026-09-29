@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.db import transaction
 from .models import Payment
 from .serializers import PaymentInitiateSerializer
 
@@ -13,6 +13,7 @@ class PaymentInitiateView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def post(self, request):
 
         serializer = PaymentInitiateSerializer(
@@ -25,25 +26,47 @@ class PaymentInitiateView(APIView):
         booking = serializer.validated_data["booking"]
         payment_method = serializer.validated_data["payment_method"]
 
-        payment = Payment.objects.create(
+        # Lock the booking row so concurrent payment requests
+        # cannot create duplicate payments.
+        booking = (
+            booking.__class__.objects
+            .select_for_update()
+            .get(pk=booking.pk)
+        )
+
+        payment, created = Payment.objects.get_or_create(
             booking=booking,
-            amount=booking.amount,
-            transaction_id=uuid.uuid4(),
-            payment_status=Payment.PaymentStatus.PENDING,
-            payment_method=payment_method
+            defaults={
+                "amount": booking.amount,
+                "transaction_id": uuid.uuid4(),
+                "payment_status": Payment.PaymentStatus.PENDING,
+                "payment_method": payment_method,
+            }
+        )
+
+        response_status = (
+            status.HTTP_201_CREATED
+            if created
+            else status.HTTP_200_OK
+        )
+
+        message = (
+            "Payment initiated successfully."
+            if created
+            else "Payment already exists for this booking."
         )
 
         return Response(
             {
-                "message": "Payment initiated successfully.",
+                "message": message,
                 "payment_id": payment.id,
                 "transaction_id": str(payment.transaction_id),
                 "booking": str(booking.uuid),
                 "amount": str(payment.amount),
                 "payment_status": payment.payment_status,
-                "payment_method": payment.payment_method
+                "payment_method": payment.payment_method,
             },
-            status=status.HTTP_201_CREATED
+            status=response_status
         )
 
 
