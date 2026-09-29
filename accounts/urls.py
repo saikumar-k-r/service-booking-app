@@ -6,6 +6,8 @@ from .views import (
     RegisterView,
     ProfileView,
     ProviderListView,
+    LogoutView,
+    PasswordChangeView,
 )
 
 urlpatterns = [
@@ -23,5 +25,11 @@ urlpatterns = [
     "profile/image/",
     ProfileImageUploadView.as_view(),
     name="profile-image"
+),
+path("logout/", LogoutView.as_view(), name="logout"),
+path(
+    "password/change/",
+    PasswordChangeView.as_view(),
+    name="password-change"
 ),
 ]

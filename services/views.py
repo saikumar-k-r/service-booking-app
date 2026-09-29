@@ -70,14 +70,12 @@ class ServiceListCreateView(
     ]
 
     def get_permissions(self):
-
         if self.request.method == "GET":
             return [AllowAny()]
 
         return [IsAuthenticated()]
 
     def get_queryset(self):
-
         queryset = Service.objects.filter(
             status=True,
             is_active=True
@@ -131,7 +129,6 @@ class ServiceListCreateView(
         return queryset
 
     def list(self, request, *args, **kwargs):
-
         response = super().list(
             request,
             *args,
@@ -144,6 +141,13 @@ class ServiceListCreateView(
         )
 
     def create(self, request, *args, **kwargs):
+
+        if request.user.role not in ["PROVIDER", "ADMIN"]:
+            return error_response(
+                message="Only providers or administrators can create services.",
+                error_code="PERMISSION_DENIED",
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         response = super().create(
             request,
@@ -168,7 +172,6 @@ class ServiceDetailView(
     queryset = Service.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
-
         response = super().retrieve(
             request,
             *args,
@@ -181,6 +184,18 @@ class ServiceDetailView(
         )
 
     def update(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+
+        if (
+            request.user.role != "ADMIN"
+            and instance.provider_id != request.user.id
+        ):
+            return error_response(
+                message="You are not allowed to modify this service.",
+                error_code="PERMISSION_DENIED",
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         response = super().update(
             request,
@@ -200,9 +215,19 @@ class ServiceDetailView(
 
         instance = self.get_object()
 
+        if (
+            request.user.role != "ADMIN"
+            and instance.provider_id != request.user.id
+        ):
+            return error_response(
+                message="You are not allowed to delete this service.",
+                error_code="PERMISSION_DENIED",
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         instance.is_active = False
         instance.status = False
-        instance.save()
+        instance.save(update_fields=["is_active", "status"])
 
         return success_response(
             data=None,
@@ -224,13 +249,11 @@ class ServiceImageListCreateView(
     ]
 
     def get_queryset(self):
-
         return ServiceImage.objects.filter(
             service_id=self.kwargs["service_id"]
         )
 
     def list(self, request, *args, **kwargs):
-
         response = super().list(
             request,
             *args,
@@ -249,18 +272,19 @@ class ServiceImageListCreateView(
             pk=self.kwargs["service_id"]
         )
 
-        if service.provider != self.request.user:
-
+        if (
+            request.user.role != "ADMIN"
+            and service.provider_id != self.request.user.id
+        ):
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied(
-                "Only the service provider can upload images."
+                "Only the service owner or administrator can upload images."
             )
 
         serializer.save(service=service)
 
     def create(self, request, *args, **kwargs):
-
         response = super().create(
             request,
             *args,
@@ -284,13 +308,17 @@ class ServiceImageDeleteView(
 
     def get_queryset(self):
 
+        if self.request.user.role == "ADMIN":
+            return ServiceImage.objects.filter(
+                service_id=self.kwargs["service_id"]
+            )
+
         return ServiceImage.objects.filter(
             service_id=self.kwargs["service_id"],
             service__provider=self.request.user
         )
 
     def destroy(self, request, *args, **kwargs):
-
         instance = self.get_object()
 
         instance.delete()
