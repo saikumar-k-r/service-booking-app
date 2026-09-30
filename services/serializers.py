@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Service, ServiceImage
+from .models import Service, ServiceImage, SavedService
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -49,3 +49,19 @@ class ServiceImageSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
 
         return None
+class SavedServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SavedService
+        fields = [
+            "id",
+            "customer",
+            "service",
+            "created_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "customer",
+            "created_at",
+        ]

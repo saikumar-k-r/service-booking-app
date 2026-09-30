@@ -6,12 +6,18 @@ from rest_framework.response import Response
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
-
+from .models import SavedService
+from .serializers import SavedServiceSerializer
+from .saved_service_service import (
+    save_service_for_customer,
+    get_saved_services_for_customer,
+    remove_saved_service,
+)
 from .models import Service, ServiceImage
 from .serializers import ServiceSerializer, ServiceImageSerializer
 from .pagination import ServicePagination
 from .utils.responses import success_response, error_response
-
+from rest_framework.views import APIView
 
 class StandardResponseMixin:
 
@@ -327,4 +333,76 @@ class ServiceImageDeleteView(
         return success_response(
             data=None,
             message="Service image deleted successfully"
+        )
+class SavedServiceListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        saved_services = get_saved_services_for_customer(request.user)
+
+        serializer = SavedServiceSerializer(
+            saved_services,
+            many=True,
+            context={"request": request},
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+     service_id = request.data.get("service")
+
+     if not service_id:
+        return Response(
+            {"detail": "Service is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+     saved_service, error = save_service_for_customer(
+        request.user,
+        service_id,
+    )
+
+     if error == "SERVICE_NOT_FOUND":
+        return Response(
+            {"detail": "Service not found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+     if error == "ALREADY_SAVED":
+        return Response(
+            {"detail": "Service is already saved."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+     serializer = SavedServiceSerializer(
+        saved_service,
+        context={"request": request},
+    )
+
+     return Response(
+        serializer.data,
+        status=status.HTTP_201_CREATED,
+    )
+
+class SavedServiceDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        deleted = remove_saved_service(
+            request.user,
+            pk,
+        )
+
+        if not deleted:
+            return Response(
+                {"detail": "Saved service not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(
+            {"detail": "Saved service removed successfully."},
+            status=status.HTTP_204_NO_CONTENT,
         )

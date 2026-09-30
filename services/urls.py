@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     ServiceListCreateView,
     ServiceDetailView,ServiceImageListCreateView,
-    ServiceImageDeleteView,
+    ServiceImageDeleteView,SavedServiceListCreateView,SavedServiceDeleteView,
 )
 
 urlpatterns = [
@@ -27,5 +27,16 @@ path(
     "<int:service_id>/images/<int:pk>/",
     ServiceImageDeleteView.as_view(),
     name="service-image-delete"
+),
+path(
+    "saved-services/",
+    SavedServiceListCreateView.as_view(),
+    name="saved-service-list-create",
+),
+
+path(
+    "saved-services/<int:pk>/",
+    SavedServiceDeleteView.as_view(),
+    name="saved-service-delete",
 ),
 ]

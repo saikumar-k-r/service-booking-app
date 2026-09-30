@@ -108,3 +108,43 @@ class ServiceImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.service.name}"
+class SavedService(models.Model):
+    customer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="saved_services"
+    )
+
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name="saved_by_customers"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["customer", "service"],
+                name="unique_customer_saved_service"
+            )
+        ]
+
+        indexes = [
+            models.Index(
+                fields=["customer", "created_at"],
+                name="saved_service_customer_idx"
+            ),
+            models.Index(
+                fields=["service"],
+                name="saved_service_service_idx"
+            ),
+        ]
+
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.customer_id} saved {self.service_id}"
