@@ -16,10 +16,14 @@ class BookingListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-     return Booking.objects.filter(
-        Q(customer=self.request.user) |
-        Q(provider=self.request.user)
-    )
+        return (
+            Booking.objects
+            .select_related("customer", "provider", "service")
+            .filter(
+                Q(customer=self.request.user) |
+                Q(provider=self.request.user)
+            )
+        )
 
     def perform_create(self, serializer):
         serializer.save()
@@ -30,8 +34,11 @@ class BookingDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Booking.objects.filter(customer=self.request.user)
-
+        return (
+            Booking.objects
+            .select_related("customer", "provider", "service")
+            .filter(customer=self.request.user)
+        )
 
 class BookingCancelView(APIView):
     permission_classes = [IsAuthenticated]

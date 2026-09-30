@@ -174,3 +174,14 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+# Django Redis Cache
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": (
+            f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:"
+            f"{os.getenv('REDIS_PORT', '6379')}/1"
+        ),
+        "TIMEOUT": 300,
+    }
+}

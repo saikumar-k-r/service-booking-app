@@ -76,10 +76,12 @@ class ServiceListCreateView(
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        queryset = Service.objects.filter(
-            status=True,
-            is_active=True
-        )
+        queryset = Service.objects.select_related(
+    "provider"
+).filter(
+    status=True,
+    is_active=True
+)
 
         category = self.request.query_params.get("category")
 
@@ -271,11 +273,10 @@ class ServiceImageListCreateView(
             Service,
             pk=self.kwargs["service_id"]
         )
-
         if (
-            request.user.role != "ADMIN"
-            and service.provider_id != self.request.user.id
-        ):
+    self.request.user.role != "ADMIN"
+    and service.provider_id != self.request.user.id
+):
             from rest_framework.exceptions import PermissionDenied
 
             raise PermissionDenied(
