@@ -28,5 +28,10 @@ urlpatterns = [
      path(
     "api/v1/integrations/",
     include("integrations.urls")
+
+),
+path(
+    "api/v1/media/",
+    include("media.urls"),
 ),
 ]
