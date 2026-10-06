@@ -44,11 +44,13 @@ class BookingAPITest(APITestCase):
             "/api/v1/bookings/",
             {
                 "service": self.service.id,
-                "booking_date": "2026-10-01",
+                "booking_date": "2026-10-10",
                 "booking_time": "10:00:00"
             },
             format="json"
         )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["status"], "PENDING")

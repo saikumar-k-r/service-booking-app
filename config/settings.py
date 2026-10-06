@@ -47,10 +47,23 @@ INSTALLED_APPS = [
     'payments',
     'django_filters',
     'channels',
+    'integrations',
 
 
 
 ]
+EXTERNAL_API_BASE_URL = os.getenv(
+    "EXTERNAL_API_BASE_URL",
+    "https://httpbin.org"
+)
+
+EXTERNAL_API_TIMEOUT = float(
+    os.getenv("EXTERNAL_API_TIMEOUT", "5")
+)
+
+EXTERNAL_API_RETRIES = int(
+    os.getenv("EXTERNAL_API_RETRIES", "2")
+)
 ASGI_APPLICATION = "config.asgi.application"
 
 CHANNEL_LAYERS = {
