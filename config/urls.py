@@ -34,4 +34,8 @@ path(
     "api/v1/media/",
     include("media.urls"),
 ),
+path(
+    "api/v1/reliability/",
+    include("reliability.urls"),
+),
 ]
